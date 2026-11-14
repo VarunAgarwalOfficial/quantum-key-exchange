@@ -127,4 +127,4 @@ that file by itself, so either export the variables or use
 
 ## Credit
 
-Based on a university information security course project by Varun Agarwal, 2022.
+Based on a university course project (CSE3501) by Varun Agarwal, 2022.
