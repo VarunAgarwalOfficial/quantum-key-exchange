@@ -1,0 +1,14 @@
+[package]
+name = "qkx-wasm"
+version = "0.2.0"
+edition = "2021"
+rust-version = "1.88"
+description = "C-ABI WebAssembly interface to the qkx library, for the browser view"
+license = "MIT"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+qkx = { path = ".." }

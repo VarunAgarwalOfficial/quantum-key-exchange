@@ -1,0 +1,13 @@
+[package]
+name = "qkx"
+version = "0.2.0"
+edition = "2021"
+rust-version = "1.88"
+description = "BB84 quantum key distribution with simulated photons: Alice and Bob over a socket, with the full post-processing chain"
+license = "MIT"
+publish = false
+
+[dependencies]
+
+[workspace]
+members = ["wasm"]
