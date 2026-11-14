@@ -3,6 +3,7 @@
 //! The protocol code only sees the [`Random`] trait. The command line tool
 //! feeds it from the operating system (`/dev/urandom`); tables, tests and the
 //! browser view use [`Xoshiro`] with a seed so that runs can be repeated.
+//! [`OsRandom`] is the operating system's generator.
 
 /// A source of random bits.
 pub trait Random {
@@ -82,6 +83,38 @@ impl Random for Xoshiro {
     }
 }
 
+/// Random bits from the operating system (`/dev/urandom`), read in blocks.
+pub struct OsRandom {
+    file: std::fs::File,
+    buffer: [u8; 4096],
+    used: usize,
+}
+
+impl OsRandom {
+    pub fn new() -> std::io::Result<Self> {
+        Ok(Self {
+            file: std::fs::File::open("/dev/urandom")?,
+            buffer: [0; 4096],
+            used: 4096,
+        })
+    }
+}
+
+impl Random for OsRandom {
+    fn next_u64(&mut self) -> u64 {
+        use std::io::Read;
+        if self.used == self.buffer.len() {
+            self.file
+                .read_exact(&mut self.buffer)
+                .expect("reading /dev/urandom failed");
+            self.used = 0;
+        }
+        let bytes = &self.buffer[self.used..self.used + 8];
+        self.used += 8;
+        u64::from_le_bytes(bytes.try_into().unwrap())
+    }
+}
+
 /// A random order of `0..n` (Fisher-Yates).
 pub fn permutation(n: usize, rng: &mut dyn Random) -> Vec<u32> {
     let mut order: Vec<u32> = (0..n as u32).collect();
@@ -99,7 +132,9 @@ mod tests {
     fn matches_the_reference_output_and_is_uniform() {
         // First output of xoshiro256** from state {1, 2, 3, 4}, as given by
         // the reference implementation: rotl(2 * 5, 7) * 9.
-        let mut rng = Xoshiro { state: [1, 2, 3, 4] };
+        let mut rng = Xoshiro {
+            state: [1, 2, 3, 4],
+        };
         assert_eq!(rng.next_u64(), 11520);
 
         let mut rng = Xoshiro::new(1);
@@ -107,7 +142,10 @@ mod tests {
         for _ in 0..60_000 {
             seen[rng.below(6) as usize] += 1;
         }
-        assert!(seen.iter().all(|&c| (9_600..10_400).contains(&c)), "{seen:?}");
+        assert!(
+            seen.iter().all(|&c| (9_600..10_400).contains(&c)),
+            "{seen:?}"
+        );
         let mut sorted = permutation(100, &mut rng);
         sorted.sort_unstable();
         assert!(sorted.iter().enumerate().all(|(i, &v)| i as u32 == v));

@@ -16,5 +16,7 @@ pub mod channel;
 pub mod photon;
 pub mod protocol;
 pub mod rng;
+pub mod session;
 pub mod simulate;
 pub mod toeplitz;
+pub mod wire;

@@ -53,8 +53,8 @@ impl Layout {
         let mut block = [0usize; PASSES];
         let mut order = Vec::with_capacity(PASSES);
         let mut place = Vec::with_capacity(PASSES);
-        for pass in 0..PASSES {
-            block[pass] = (first << pass).clamp(1, len.max(1));
+        for (pass, size) in block.iter_mut().enumerate() {
+            *size = (first << pass).clamp(1, len.max(1));
             let this: Vec<u32> = if pass == 0 {
                 (0..len as u32).collect()
             } else {

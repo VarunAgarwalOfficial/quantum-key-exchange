@@ -151,7 +151,8 @@ pub fn run(
     report.correction = correction;
 
     let seed = rng.bits(toeplitz::seed_len(alice_key.len(), VERIFY_BITS));
-    if toeplitz::hash(&alice_key, &seed, VERIFY_BITS) != toeplitz::hash(&bob_key, &seed, VERIFY_BITS)
+    if toeplitz::hash(&alice_key, &seed, VERIFY_BITS)
+        != toeplitz::hash(&bob_key, &seed, VERIFY_BITS)
     {
         report.verdict = Verdict::VerificationFailed;
         return report;
@@ -167,7 +168,52 @@ pub fn run(
     }
     let seed = rng.bits(toeplitz::seed_len(alice_key.len(), report.final_len));
     report.key = toeplitz::hash(&alice_key, &seed, report.final_len);
-    debug_assert_eq!(report.key, toeplitz::hash(&bob_key, &seed, report.final_len));
+    debug_assert_eq!(
+        report.key,
+        toeplitz::hash(&bob_key, &seed, report.final_len)
+    );
     report.verdict = Verdict::Key;
     report
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::channel::{Eve, Strategy};
+    use crate::rng::Xoshiro;
+
+    #[test]
+    fn a_fixed_basis_eve_leaves_errors_only_in_the_other_basis() {
+        let channel = Channel {
+            noise: 0.0,
+            eve: Some(Eve {
+                strategy: Strategy::Rectilinear,
+                fraction: 1.0,
+            }),
+        };
+        let report = run(
+            40_000,
+            &channel,
+            &Settings::default(),
+            true,
+            &mut Xoshiro::new(5),
+        );
+        let [(_, rect_errors), (diag_bits, diag_errors)] = report.true_errors;
+        assert_eq!(rect_errors, 0);
+        let diag_rate = diag_errors as f64 / diag_bits as f64;
+        assert!((0.47..0.53).contains(&diag_rate), "{diag_rate}");
+        assert_eq!(report.verdict, Verdict::TooManyErrors);
+
+        // A quiet line: no errors, and only the fixed costs come off the key.
+        let report = run(
+            40_000,
+            &Channel::default(),
+            &Settings::default(),
+            true,
+            &mut Xoshiro::new(5),
+        );
+        assert_eq!(report.estimate.errors, 0);
+        assert_eq!(report.verdict, Verdict::Key);
+        assert!(report.raw_len - report.final_len < 128 + 500);
+    }
 }
