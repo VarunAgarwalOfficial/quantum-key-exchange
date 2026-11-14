@@ -243,7 +243,7 @@ def build_parser() -> argparse.ArgumentParser:
         sub.add_argument(
             "--port",
             type=int,
-            default=int(os.environ.get("QKX_PORT", "5050")),
+            default=os.environ.get("QKX_PORT", "5050"),
             help="default: $QKX_PORT or 5050",
         )
         sub.add_argument(
@@ -283,6 +283,9 @@ def main(argv: list[str] | None = None) -> int:
     except (TransportError, ProtocolError, OSError, ValueError) as error:
         print(f"qkx: {error}", file=sys.stderr)
         return EXIT_ERROR
+    except KeyboardInterrupt:
+        print("qkx: interrupted", file=sys.stderr)
+        return 130
 
 
 if __name__ == "__main__":

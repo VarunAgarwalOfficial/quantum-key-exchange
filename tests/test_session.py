@@ -170,7 +170,7 @@ def over_tcp(message, eve_fraction=0.0, seed=1):
 
 
 def test_end_to_end_over_tcp():
-    message = "über die Leitung: 量子 ✓".encode()
+    message = "über die Leitung: 量子 𝄞".encode()
     alice, bob = over_tcp(message)
     assert alice.delivered and bob.delivered
     assert bob.plaintext == message
