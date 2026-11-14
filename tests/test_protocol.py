@@ -109,7 +109,7 @@ def test_key_digest_depends_on_every_bit_and_on_the_salt():
     assert protocol.key_digest([0], b"") != protocol.key_digest([0, 0], b"")
 
 
-@pytest.mark.parametrize("text", ["", "hello", "naïve café", "量子鍵配送", "key 🔑"])
+@pytest.mark.parametrize("text", ["", "hello", "naïve café", "量子鍵配送", "clef 𝄞"])
 def test_one_time_pad_round_trips_bytes(text):
     data = text.encode("utf-8")
     rng = random.Random(8)

@@ -9,7 +9,7 @@ from qkx.session import ProtocolError, Settings, run_alice, run_bob, run_local
 from qkx.transport import SocketPipe, memory_pipes
 
 
-@pytest.mark.parametrize("text", ["", "x", "meet me at noon", "naïve café ☕", "量子鍵配送" * 40])
+@pytest.mark.parametrize("text", ["", "x", "meet me at noon", "naïve café 𝄞", "量子鍵配送" * 40])
 def test_message_round_trips_without_eve(text):
     message = text.encode("utf-8")
     alice, bob, eve = run_local(message, seed=1)
