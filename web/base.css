@@ -1,0 +1,442 @@
+/* Shared base style for the small projects: tokens, type, controls. Identical in huffman, quantum-key-exchange and fog-scheduling. Page-specific rules go in a separate file. */
+@font-face {
+  font-family: "IBM Plex Sans";
+  font-style: normal;
+  font-weight: 100 700;
+  font-display: swap;
+  src: url("./fonts/ibm-plex-sans-latin-wght-normal.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("./fonts/ibm-plex-mono-latin-400-normal.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("./fonts/ibm-plex-mono-latin-600-normal.woff2") format("woff2");
+}
+
+:root {
+  color-scheme: light dark;
+
+  /* Colour */
+  --bg: light-dark(#f6f5f1, #131516);
+  --surface: light-dark(#ffffff, #1c1f21);
+  --ink: light-dark(#1d1f21, #e8e6e1);
+  --muted: light-dark(#5b6066, #a3a8ad);
+  --border: light-dark(#dcdad3, #33383c);
+  --border-strong: light-dark(#b9b6ad, #4d5459);
+  /* Edges of buttons and inputs: 3:1 against the page, so a control is findable without its label. */
+  --control-border: light-dark(#8a877f, #6f767c);
+  --accent: light-dark(#2a6661, #6fbfb6);
+  --accent-ink: light-dark(#ffffff, #0f1516);
+  --danger: light-dark(#b23a26, #f0705a);
+  --focus: light-dark(#1c5fd4, #8ab4ff);
+
+  /*
+   * Canvas palette, read by scripts through theme.js. compare = being read,
+   * change = being written or wrong, good = finished or kept, visit = seen,
+   * accent = the current item. series-1..6 are categorical.
+   */
+  --canvas-bg: light-dark(#ffffff, #1c1f21);
+  --canvas-ink: light-dark(#1d1f21, #e8e6e1);
+  --canvas-muted: light-dark(#6d737a, #8f959b);
+  --canvas-faint: light-dark(#e3e1da, #2e3336);
+  --canvas-accent: light-dark(#2f6f6a, #6fbfb6);
+  --canvas-compare: light-dark(#d98a00, #f0b03f);
+  --canvas-change: light-dark(#c8452f, #f0705a);
+  --canvas-good: light-dark(#3d8a3d, #7fc97f);
+  --canvas-visit: light-dark(#a9c4e6, #2f4a66);
+  --canvas-series-1: light-dark(#2f6f6a, #6fbfb6);
+  --canvas-series-2: light-dark(#c8452f, #f0705a);
+  --canvas-series-3: light-dark(#3b6fb5, #7aa7e0);
+  --canvas-series-4: light-dark(#d98a00, #f0b03f);
+  --canvas-series-5: light-dark(#7a4fa3, #b592d6);
+  --canvas-series-6: light-dark(#5c7a1f, #a3c25a);
+
+  /* Type scale: 12, 14, 16, 20, 28 px at the default root size. */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-md: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.75rem;
+
+  /* Spacing scale: 4, 8, 12, 16, 24, 32, 48 px. */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+
+  --radius: 8px;
+  --radius-small: 5px;
+  /* Height of every button, select and text box. Taller under a finger; see the end of the file. */
+  --control: 2.5rem;
+  --page: 74rem;
+  --measure: 44rem;
+
+  --fast: 120ms;
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+
+  --font: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+
+/* The theme button overrides the system scheme. */
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  /* Keeps the page from moving sideways when a scrollbar appears or goes. */
+  scrollbar-gutter: stable;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  margin: 0 auto;
+  max-width: var(--page);
+  padding: 0 var(--space-5) var(--space-6);
+  background: var(--bg);
+  color: var(--ink);
+  font: var(--text-md) / 1.5 var(--font);
+  -webkit-text-size-adjust: 100%;
+  text-rendering: optimizeLegibility;
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+main {
+  /* Fills the window so the footer does not jump while a demo loads. */
+  flex: 1 0 auto;
+}
+
+main:focus {
+  outline: none;
+}
+
+a {
+  color: inherit;
+  text-underline-offset: 0.15em;
+}
+
+h1,
+h2,
+h3 {
+  font-weight: 600;
+  text-wrap: balance;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.skip {
+  position: absolute;
+  z-index: 20;
+  left: var(--space-4);
+  top: -4rem;
+  padding: var(--space-2) var(--space-3);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.skip:focus {
+  top: var(--space-2);
+}
+
+/* Controls */
+
+select,
+button,
+.file-button,
+input[type="text"],
+input[type="number"],
+input[type="search"],
+textarea {
+  min-height: var(--control);
+  padding: var(--space-1) var(--space-3);
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--control-border);
+  border-radius: var(--radius);
+  font: inherit;
+  font-size: var(--text-sm);
+  transition:
+    border-color var(--fast) var(--ease),
+    background-color var(--fast) var(--ease),
+    color var(--fast) var(--ease);
+}
+
+input[type="text"],
+input[type="number"],
+textarea {
+  width: 100%;
+  font-family: var(--mono);
+}
+
+input::placeholder {
+  color: var(--muted);
+  opacity: 1;
+}
+
+select {
+  width: 100%;
+  padding-right: var(--space-6);
+  appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--muted) 50%),
+    linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+  background-position:
+    calc(100% - 1.05rem) 50%,
+    calc(100% - 0.75rem) 50%;
+  background-size: 0.3rem 0.3rem;
+  background-repeat: no-repeat;
+  text-overflow: ellipsis;
+}
+
+button,
+.file-button {
+  cursor: pointer;
+  text-align: center;
+  font-weight: 500;
+  user-select: none;
+}
+
+select:hover,
+input[type="text"]:hover,
+input[type="number"]:hover,
+input[type="search"]:hover,
+button:hover:not([aria-disabled="true"]),
+.file-button:hover {
+  border-color: var(--ink);
+}
+
+button:active:not([aria-disabled="true"]) {
+  background: var(--bg);
+}
+
+/* aria-disabled rather than disabled, so a button keeps focus when it runs out of work. */
+button[aria-disabled="true"],
+button.primary[aria-disabled="true"] {
+  color: var(--muted);
+  background: transparent;
+  border-color: var(--control-border);
+  border-style: dashed;
+  filter: none;
+  cursor: default;
+}
+
+button.primary,
+button[aria-pressed="true"] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+
+button.primary:hover:not([aria-disabled="true"]),
+button[aria-pressed="true"]:hover {
+  border-color: var(--accent);
+  filter: brightness(1.08);
+}
+
+button.primary:active:not([aria-disabled="true"]) {
+  background: var(--accent);
+  filter: brightness(0.95);
+}
+
+button.quiet {
+  background: transparent;
+  color: var(--muted);
+}
+
+button.quiet:hover {
+  color: var(--ink);
+}
+
+input[type="range"] {
+  width: 100%;
+  min-height: 1.5rem;
+  margin: 0;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+/* Page furniture */
+
+.site-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-6);
+  padding: var(--space-4) 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.site-title {
+  margin: 0;
+  font-size: var(--text-md);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.lede {
+  max-width: var(--measure);
+  margin: var(--space-5) 0;
+  color: var(--muted);
+}
+
+.panel {
+  margin: 0 0 var(--space-5);
+  padding: var(--space-4);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.panel > h2 {
+  margin: 0 0 var(--space-3);
+  font-size: var(--text-md);
+}
+
+.panel canvas,
+.panel svg {
+  display: block;
+  max-width: 100%;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: var(--space-3);
+}
+
+.field {
+  display: grid;
+  gap: var(--space-1);
+  flex: 1 1 9rem;
+  font-size: var(--text-sm);
+  color: var(--muted);
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+  gap: var(--space-5);
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  margin: var(--space-3) 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--text-sm);
+  color: var(--muted);
+}
+
+.legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.swatch {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 2px;
+  background: currentColor;
+}
+
+.scroll-x {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+th,
+td {
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--border);
+  text-align: right;
+  white-space: nowrap;
+}
+
+th:first-child,
+td:first-child {
+  text-align: left;
+}
+
+th {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.mono {
+  font-family: var(--mono);
+}
+
+.note {
+  font-size: var(--text-sm);
+  color: var(--muted);
+}
+
+.site-footer {
+  margin-top: var(--space-6);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border);
+  font-size: var(--text-sm);
+  color: var(--muted);
+}
+
+@media (pointer: coarse) {
+  :root {
+    --control: 2.75rem;
+  }
+}
+
+@media (max-width: 40rem) {
+  body {
+    padding: 0 var(--space-4) var(--space-5);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
