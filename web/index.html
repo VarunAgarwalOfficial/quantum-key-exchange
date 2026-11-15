@@ -19,19 +19,28 @@
     <a class="skip" href="#main">Skip to content</a>
     <header class="site-header">
       <h1 class="site-title">BB84, photon by photon</h1>
-      <button id="theme" class="quiet" type="button">Theme: auto</button>
     </header>
     <main id="main">
       <p class="lede">
-        Alice sends photons, each carrying one bit in one of two bases, + or x. Bob measures each in a basis of his own
-        choosing. Where the bases match he reads her bit; where they differ he gets a coin flip. Anyone who listens has to
-        measure too, and that leaves errors behind. The photons here are simulated.
+        BB84 is a way for Alice and Bob to agree a secret key by sending single particles of light, photons. Each photon
+        carries one bit, 0 or 1, set one of two ways called bases: + (upright or flat) or x (diagonal). Bob measures each
+        photon in a basis he picks at random and they keep only the bits where his basis matched hers. Press Play to send
+        the 24 example photons one after another.
       </p>
 
       <section class="panel" aria-labelledby="h-line">
-        <h2 id="h-line">The line</h2>
-        <div class="settings">
-          <label class="field" for="eve">
+        <h2 id="h-line">Alice sends photons to Bob</h2>
+        <div class="line-wrap">
+          <svg id="line" role="img" aria-labelledby="line-title">
+            <title id="line-title">Alice and Bob joined by an optical fibre, with the photon being sent</title>
+          </svg>
+        </div>
+        <div class="row controls">
+          <button id="play" type="button" class="primary">Play</button>
+          <button id="step" type="button">Send one photon</button>
+          <button id="back" type="button">Back one</button>
+          <button id="all" type="button">Send all 24</button>
+          <label class="field eve" for="eve">
             Eavesdropper
             <select id="eve">
               <option value="0">none</option>
@@ -40,16 +49,44 @@
               <option value="3">Eve, always x</option>
             </select>
           </label>
+        </div>
+        <p id="status" class="status" aria-live="polite"></p>
+      </section>
+
+      <section class="panel" aria-labelledby="h-strip">
+        <h2 id="h-strip">Each photon so far</h2>
+        <ul class="legend" id="strip-note">
+          <li><span class="glyph">&ndash; |</span>bit 0, 1 sent the + way</li>
+          <li><span class="glyph">/ \</span>bit 0, 1 sent the x way</li>
+          <li>Kept: only where Bob's basis matches Alice's</li>
+        </ul>
+        <table class="strip" id="strip" aria-describedby="strip-note"></table>
+      </section>
+
+      <section class="panel" aria-labelledby="h-sifted">
+        <h2 id="h-sifted">The key they keep so far</h2>
+        <dl class="keys">
+          <dt>Alice</dt>
+          <dd id="alice-key" class="mono"></dd>
+          <dt>Bob</dt>
+          <dd id="bob-key" class="mono"></dd>
+        </dl>
+        <p class="note" id="sifted-note"></p>
+      </section>
+
+      <details class="panel">
+        <summary>More settings: how often Eve listens, noise on the line, number of photons and the seed</summary>
+        <div class="settings">
           <label class="field" for="fraction">
-            <span>Eve intercepts <output id="fraction-out" for="fraction">100%</output></span>
+            <span>Eve listens to <output id="fraction-out" for="fraction">100%</output> of photons</span>
             <input id="fraction" type="range" min="0" max="100" step="5" value="100" />
           </label>
           <label class="field" for="noise">
-            <span>Line noise <output id="noise-out" for="noise">1.0%</output></span>
+            <span>Line noise (bits flipped by the fibre) <output id="noise-out" for="noise">1.0%</output></span>
             <input id="noise" type="range" min="0" max="15" step="0.5" value="1" />
           </label>
           <label class="field" for="photons">
-            Photons per exchange
+            Photons in the whole exchange
             <select id="photons">
               <option value="2000">2,000</option>
               <option value="20000" selected>20,000</option>
@@ -57,62 +94,30 @@
             </select>
           </label>
           <label class="field seed" for="seed">
-            Seed
+            Seed (a number that fixes the random choices)
             <input id="seed" type="number" min="0" max="4294967295" step="1" value="1" inputmode="numeric" />
           </label>
-          <button id="reseed" type="button">New photons</button>
+          <button id="reseed" type="button">New random photons</button>
         </div>
+        <p class="note">The settings are kept in the address, so a link reproduces the page.</p>
+      </details>
 
-        <div class="line-wrap">
-          <svg id="line" role="img" aria-labelledby="line-title">
-            <title id="line-title">Photons travelling from Alice to Bob</title>
-          </svg>
-        </div>
-        <div class="row controls">
-          <button id="back" type="button">Back</button>
-          <button id="play" type="button" class="primary">Play</button>
-          <button id="step" type="button">Step</button>
-          <button id="all" type="button">Show all</button>
-        </div>
-        <p id="status" class="status" aria-live="polite"></p>
+      <details class="panel">
+        <summary>The whole exchange: from thousands of photons to a secret key</summary>
+        <p class="note">
+          The 24 photons above are the start of a longer exchange. Here the same settings are run to the end in one go.
+        </p>
+        <ol class="chain" id="chain"></ol>
+      </details>
 
-        <div class="scroll-x">
-          <table class="strip" id="strip" aria-describedby="strip-note"></table>
-        </div>
-        <ul class="legend" id="strip-note">
-          <li><span class="glyph">&ndash; |</span>bit 0, 1 in the + basis</li>
-          <li><span class="glyph">/ \</span>bit 0, 1 in the x basis</li>
-          <li><span class="swatch" style="color: var(--canvas-good)"></span>kept: bases match</li>
-          <li><span class="swatch" style="color: var(--canvas-change)"></span>kept, but Bob's bit is wrong</li>
-        </ul>
-      </section>
-
-      <div class="grid-2">
-        <section class="panel" aria-labelledby="h-sifted">
-          <h2 id="h-sifted">Sifted key so far</h2>
-          <dl class="keys">
-            <dt>Alice</dt>
-            <dd id="alice-key" class="mono"></dd>
-            <dt>Bob</dt>
-            <dd id="bob-key" class="mono"></dd>
-          </dl>
-          <p class="note" id="sifted-note"></p>
-        </section>
-
-        <section class="panel" aria-labelledby="h-chain">
-          <h2 id="h-chain">The whole exchange</h2>
-          <ol class="chain" id="chain" aria-live="polite"></ol>
-        </section>
-      </div>
-
-      <section class="panel" aria-labelledby="h-compare">
-        <h2 id="h-compare">With and without an eavesdropper</h2>
+      <details class="panel">
+        <summary>With and without an eavesdropper: the same line, side by side in a table</summary>
         <div class="scroll-x">
           <table>
             <thead>
               <tr>
                 <th scope="col">Same line, same seed</th>
-                <th scope="col">Error rate</th>
+                <th scope="col">Bits wrong</th>
                 <th scope="col">+ basis</th>
                 <th scope="col">x basis</th>
                 <th scope="col">Eve knew</th>
@@ -124,13 +129,14 @@
           </table>
         </div>
         <p class="note">
-          Eve knew: share of the sifted bits she measured in Alice's basis, before privacy amplification. Only a
-          simulation can count this. An eavesdropper who always uses one basis shows up as errors in the other basis only.
+          Eve knew: the share of kept bits she measured in Alice's basis, before the key is shortened to hide them. Only
+          a simulation can count this. An eavesdropper who always uses one basis shows up as errors in the other basis
+          only.
         </p>
-      </section>
+      </details>
 
-      <section class="panel" aria-labelledby="h-rate">
-        <h2 id="h-rate">Secret key rate against line noise</h2>
+      <details class="panel">
+        <summary>How many secret bits each photon gives as the line gets noisier</summary>
         <div class="chart-wrap">
           <svg id="rate" role="img" aria-labelledby="rate-title">
             <title id="rate-title">Secret bits per photon as the line noise grows</title>
@@ -150,11 +156,13 @@
           </div>
         </details>
         <p class="note">
-          Each point is one exchange of the photon count above, with the error limit switched off so the rate falls to
-          zero by itself. The ideal curve is 0.375 (1 &minus; 2h(e)): sifting and sampling keep 0.375 of the photons, and
-          1 &minus; 2h(e) is the asymptotic BB84 rate with perfect error correction.
+          Each point is one whole exchange with the chosen number of photons, with the error limit switched off so the
+          rate falls to zero by itself. The ideal curve is 0.375 (1 &minus; 2h(e)), where e is the share of bits wrong
+          and h is the binary entropy, the information in a coin that lands one way with chance e: comparing bases and
+          checking a sample keep 0.375 of the photons, and 1 &minus; 2h(e) is what is left after perfect error
+          correction and hiding what Eve could know.
         </p>
-      </section>
+      </details>
     </main>
     <footer class="site-footer">
       Computed by the same Rust code as the command line tool, compiled to WebAssembly. The photons are simulated: this

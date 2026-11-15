@@ -1,5 +1,5 @@
 // Browser view: every number comes from qkx.wasm (the Rust library); this file only draws.
-import { initTheme, onThemeChange, palette } from "./theme.js";
+import { onThemeChange, palette } from "./theme.js";
 
 const $ = (id) => document.getElementById(id);
 const SVG = "http://www.w3.org/2000/svg";
@@ -127,7 +127,7 @@ function photonMark(x, basis, bit, colour) {
 function drawLine(progress) {
   const svg = $("line");
   clear(svg);
-  const width = fit(svg, 320, 720, 132);
+  const width = fit(svg, 260, 720, 132);
   STATION.alice = 40;
   STATION.bob = width - 40;
   STATION.eve = width / 2;
@@ -145,6 +145,20 @@ function drawLine(progress) {
   station(svg, STATION.alice, "Alice", colours.accent);
   station(svg, STATION.bob, "Bob", colours.accent);
   if (eveOn) station(svg, STATION.eve, "Eve", colours.change);
+  const fibreEnd = eveOn ? STATION.eve - 34 : STATION.bob - 34;
+  svg.append(
+    element(
+      "text",
+      {
+        x: (STATION.alice + 34 + fibreEnd) / 2,
+        y: Y - 30,
+        "text-anchor": "middle",
+        fill: colours.muted,
+        "font-size": 12,
+      },
+      "optical fibre",
+    ),
+  );
 
   const index = progress === null ? revealed - 1 : revealed;
   const p = run.records[index] === undefined ? null : photon(run.records[index]);
@@ -156,6 +170,22 @@ function drawLine(progress) {
         text,
       ),
     );
+  if (revealed === 0 && progress === null) {
+    caption(STATION.eve, "Nothing has run yet.");
+    svg.append(
+      element(
+        "text",
+        {
+          x: STATION.eve,
+          y: Y + 66,
+          "text-anchor": "middle",
+          fill: colours.muted,
+          "font-size": 12,
+        },
+        `${run.records.length} photons wait at Alice.`,
+      ),
+    );
+  }
   if (p) {
     caption(STATION.alice, `sends ${p.aliceBit} in ${basisName(p.aliceBasis)}`);
     if (eveOn) {
@@ -172,57 +202,68 @@ function drawLine(progress) {
   const pastEve = eveOn && p.tapped && x >= STATION.eve;
   const basis = pastEve ? p.eveBasis : p.aliceBasis;
   const bit = pastEve ? p.eveBit : p.aliceBit;
-  svg.append(photonMark(x, basis, bit, pastEve ? colours.change : colours.accent));
+  svg.append(
+    photonMark(x, basis, bit, pastEve ? colours.change : colours.accent),
+    element(
+      "text",
+      { x, y: Y + 31, "text-anchor": "middle", fill: colours.ink, "font-size": 12 },
+      "photon",
+    ),
+  );
 }
 
-// The strip: one column per photon.
+// The strip: one row per photon sent so far.
+
+function keptText(p) {
+  if (p.aliceBasis !== p.bobBasis) return "no";
+  return p.aliceBit === p.bobBit ? "yes" : "yes, wrong";
+}
 
 function drawStrip() {
   const table = $("strip");
   table.replaceChildren();
-  const records = run.records.map(photon);
-  const rows = [
-    ["Alice bit", (p) => p.aliceBit],
-    ["Alice sends", (p) => glyph(p.aliceBasis, p.aliceBit)],
+  const columns = [
+    ["Photon", (_, i) => (i === revealed - 1 ? `${i + 1}, latest` : String(i + 1))],
+    ["Alice sends", (p) => `${p.aliceBit} as ${glyph(p.aliceBasis, p.aliceBit)}`],
   ];
-  if (state.eve !== 0) rows.push(["Eve basis", (p) => (p.tapped ? basisName(p.eveBasis) : "·")]);
-  rows.push(
-    ["Bob basis", (p) => basisName(p.bobBasis)],
-    ["Bob bit", (p) => p.bobBit],
-    ["Kept", (p) => (p.aliceBasis === p.bobBasis ? "yes" : "·")],
+  if (state.eve !== 0) {
+    columns.push(["Eve's basis", (p) => (p.tapped ? basisName(p.eveBasis) : "none")]);
+  }
+  columns.push(
+    ["Bob's basis", (p) => basisName(p.bobBasis)],
+    ["Bob reads", (p) => p.bobBit],
+    ["Kept", keptText],
   );
   const head = document.createElement("tr");
-  const corner = document.createElement("th");
-  corner.scope = "col";
-  corner.textContent = "Photon";
-  head.append(corner);
-  records.forEach((_, i) => {
+  for (const [name] of columns) {
     const th = document.createElement("th");
     th.scope = "col";
-    th.textContent = String(i + 1);
-    if (i === revealed - 1) th.className = "current";
-    head.append(th);
-  });
-  table.append(head);
-  for (const [name, value] of rows) {
-    const tr = document.createElement("tr");
-    const th = document.createElement("th");
-    th.scope = "row";
     th.textContent = name;
-    tr.append(th);
-    records.forEach((p, i) => {
-      const td = document.createElement("td");
-      if (i < revealed) {
-        td.textContent = String(value(p));
-        if (p.aliceBasis === p.bobBasis) {
-          td.className = p.aliceBit === p.bobBit ? "kept" : "wrong";
-        }
-      }
-      if (i === revealed - 1) td.classList.add("current");
-      tr.append(td);
-    });
-    table.append(tr);
+    head.append(th);
   }
+  table.append(head);
+  if (revealed === 0) {
+    const tr = document.createElement("tr");
+    const td = document.createElement("td");
+    td.colSpan = columns.length;
+    td.textContent = "No photons sent yet.";
+    tr.append(td);
+    table.append(tr);
+    return;
+  }
+  run.records.slice(0, revealed).forEach((flags, i) => {
+    const p = photon(flags);
+    const tr = document.createElement("tr");
+    if (i === revealed - 1) tr.className = "current";
+    for (const [, value] of columns) {
+      const td = document.createElement("td");
+      td.textContent = String(value(p, i));
+      tr.append(td);
+    }
+    if (p.aliceBasis === p.bobBasis)
+      tr.lastChild.className = p.aliceBit === p.bobBit ? "kept" : "wrong";
+    table.append(tr);
+  });
 }
 
 function drawSifted() {
@@ -255,12 +296,20 @@ function drawSifted() {
     bob.textContent = "—";
   }
   $("sifted-note").textContent =
-    `${kept.length} of ${revealed} photons kept so far, ${errors} wrong. ` +
-    "Over a whole exchange about half are kept. Alice and Bob never say their bits, only their bases.";
+    revealed === 0
+      ? "Nothing sent yet, so nothing kept. Over a whole exchange about half the photons are kept. Alice and Bob tell each other only which basis they used, never the bits."
+      : `${kept.length} of ${revealed} photons kept so far, ${errors} wrong${errors ? " (underlined)" : ""}. ` +
+        "Over a whole exchange about half are kept. Alice and Bob tell each other only which basis they used, never the bits.";
 }
 
 function describePhoton(i) {
-  if (i < 0) return "Press Play or Step to send the first photon.";
+  if (i < 0) {
+    const who =
+      state.eve === 0
+        ? "No one is listening on the line."
+        : `${EVE_NAMES[state.eve]} is listening on the line.`;
+    return `Nothing has run yet. Alice has ${run.records.length} photons ready. ${who} Press Play to send them one after another, or Send one photon to go one at a time.`;
+  }
   const p = photon(run.records[i]);
   let text = `Photon ${i + 1}: Alice sends ${p.aliceBit} in the ${basisName(p.aliceBasis)} basis (${glyph(p.aliceBasis, p.aliceBit)}). `;
   if (state.eve !== 0) {
@@ -269,31 +318,36 @@ function describePhoton(i) {
       : "Eve lets it pass. ";
   }
   text += `Bob measures in ${basisName(p.bobBasis)} and reads ${p.bobBit}. `;
-  if (p.aliceBasis !== p.bobBasis) return `${text}Different bases: thrown away.`;
-  return `${text}Same basis: kept${p.aliceBit === p.bobBit ? "." : ", but the bit is wrong."}`;
+  if (p.aliceBasis !== p.bobBasis)
+    return `${text}Different bases, so Bob's bit is a coin flip: thrown away.`;
+  return `${text}Same basis: kept${p.aliceBit === p.bobBit ? "." : ", but the bit is wrong, from noise or Eve."}`;
 }
 
 function drawChain() {
   const r = run;
   const items = [
     `${number(r.photons)} photons sent; ${number(r.sifted)} kept after comparing bases (${percent(r.sifted / r.photons)}).`,
-    `${number(r.sample)} kept bits revealed to measure errors: ${percent(r.qber)} wrong (+ basis ${percent(r.qberRect)}, x basis ${percent(r.qberDiag)}). Limit 11%.`,
+    `${number(r.sample)} kept bits said out loud to check for errors: ${percent(r.qber)} wrong (+ basis ${percent(r.qberRect)}, x basis ${percent(r.qberDiag)}). Above 11% they give up.`,
   ];
   if (r.verdict === "errors") {
     items.push("Above the limit, so both stop. Someone may be listening; no key, no message.");
   } else {
     const efficiency = r.efficiency > 0 ? `, ${r.efficiency.toFixed(2)} times the minimum` : "";
     items.push(
-      `Cascade finds and fixes ${number(r.corrected)} wrong bits in the ${number(r.rawLen)}-bit key, revealing ${number(r.leaked)} parities${efficiency}.`,
+      `Cascade, an error-correcting method, finds and fixes ${number(r.corrected)} wrong bits in the ${number(r.rawLen)}-bit key. It does this by comparing ${number(r.leaked)} parities (whether a group of bits holds an odd or even number of 1s)${efficiency}.`,
     );
     if (r.verdict === "hash")
-      items.push("The 64-bit verification hashes differ: errors survived. Both stop.");
+      items.push(
+        "The 64-bit fingerprints (hashes) of the two keys differ: errors survived. Both stop.",
+      );
     else {
-      items.push("A 64-bit Toeplitz hash of both keys matches.");
+      items.push(
+        "A 64-bit fingerprint (a Toeplitz hash) of the two keys matches, so the keys are the same.",
+      );
       items.push(
         r.finalLen > 0
-          ? `Privacy amplification hashes the key down to ${number(r.finalLen)} secret bits: ${(r.finalLen / r.photons).toFixed(4)} per photon.`
-          : "Privacy amplification leaves nothing: the errors cost more than the key holds.",
+          ? `Privacy amplification shortens the key with a hash so that what Eve may know is useless: ${number(r.finalLen)} secret bits are left, ${(r.finalLen / r.photons).toFixed(4)} per photon.`
+          : "Privacy amplification, shortening the key so that what Eve may know is useless, leaves nothing: the errors cost more than the key holds.",
       );
     }
   }
@@ -411,7 +465,7 @@ function drawRates() {
         stroke: colours.ink,
         "stroke-dasharray": "2 3",
       }),
-      text(sx(state.noise) + 4, CHART.top + 10, "setting above", "start", colours.ink),
+      text(sx(state.noise) + 4, CHART.top + 10, "noise now set", "start", colours.ink),
     );
   }
   for (const s of series()) {
@@ -690,7 +744,6 @@ function onResize() {
 }
 
 async function main() {
-  initTheme($("theme"));
   colours = palette();
   onThemeChange(() => {
     colours = palette();
@@ -701,6 +754,9 @@ async function main() {
   wasm = instance.exports;
   readUrl();
   wire();
+  $("rate")
+    .closest("details")
+    .addEventListener("toggle", () => drawRates());
   onResize();
   recompute();
 }
