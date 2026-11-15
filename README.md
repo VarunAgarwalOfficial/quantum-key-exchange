@@ -172,7 +172,46 @@ To rebuild the module after changing the library:
     cargo build --release -p qkx-wasm --target wasm32-unknown-unknown
     cp target/wasm32-unknown-unknown/release/qkx_wasm.wasm web/qkx.wasm
 
-The page uses IBM Plex (SIL Open Font License, `web/fonts/OFL.txt`).
+### The look
+
+The page uses the owner's site look, "Editorial". `web/c-editorial-tokens.css`
+is copied unchanged from the website, and `web/base.css` (the same file in
+huffman, quantum-key-exchange and fog-scheduling) maps the page's own
+variables onto it: page and ink in light and dark (following the system), the
+oxblood accent for links and focus only, Newsreader for text, the drawings
+and the keys, the site's sizes (17, 20, 22 and 28 px, and the title),
+spacing, measure, rules and focus ring. The token file asks for its fonts at
+`/fonts/`, so serve `web/` as the site root (as above) or from the website.
+The fonts and their licences (`Newsreader-OFL.txt`, `IBM-Plex-OFL.txt`,
+`GUST-FONT-LICENSE.txt`, `LPPL-1.3c.txt`, `NewCM-License.txt`) are in
+`web/fonts/`.
+
+Sections are set off by space and a rule, with no boxes, fills or shadows.
+Play is the only filled control. Meaning colours, the same in all six tools:
+
+| Role in the code | Meaning here                                   | Site token             |
+| ---------------- | ---------------------------------------------- | ---------------------- |
+| accent           | Alice, Bob and the photon as Alice sent it     | `--site-mean-open`     |
+| change           | Eve, the photon after she measured, wrong bits | `--site-mean-against`  |
+| compare          | (being read; unused)                           | `--site-mean-measured` |
+| good             | (finished or kept; unused)                     | `--site-mean-proved`   |
+
+In the key rate chart, "No eavesdropper" is series 1 (open), the line with Eve
+is series 2 (against) and the ideal rate is a dashed muted line.
+
+Removed in the restyle: IBM Plex Sans, the old teal palette and its six
+series colours, IBM Plex Mono for the settings, the photon symbols and the two
+keys, bold wrong bits (they keep the colour and an underline, and the strip
+says "yes, wrong"), the accent tint on the latest photon (now a pale band of
+the rule colour), rounded station boxes, panel boxes and fills. What the new
+typeface moved: every label in the drawings is 17 px instead of 14 and 12, so
+the line drawing is 148 px tall instead of 132, the captions under Alice and
+Bob line up with the outer edge of their box instead of centring on it (so
+they stay inside on a phone), and the photon's label sits a little lower. The
+key rate chart is 312 px tall instead of 300, with the noise figures lower to
+clear the rate figures, and "noise now set" moves to the left of its line near
+the right edge. The keys use equal-width lining figures in the text face, so
+the two still line up bit for bit.
 
 ## Test
 

@@ -10,7 +10,6 @@
 
 .settings output {
   color: var(--ink);
-  font-family: var(--mono);
 }
 
 .settings input:disabled {
@@ -60,16 +59,17 @@
 
 .strip td.wrong {
   color: var(--danger);
-  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
 }
 
+/* The latest photon: a pale band of the rule colour (text on it still meets AA), and its row says "latest". */
 .strip .current {
-  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  background: color-mix(in srgb, var(--border) 60%, var(--bg));
 }
 
 .glyph {
   min-width: 2.25rem;
-  font-family: var(--mono);
   color: var(--ink);
 }
 
@@ -87,14 +87,14 @@
 
 .keys dd {
   margin: 0;
-  font-variant-numeric: lining-nums;
+  /* Lining, equal-width figures in the text face, so the two keys line up bit for bit. */
+  font-variant-numeric: lining-nums tabular-nums;
   overflow-wrap: anywhere;
   letter-spacing: 0.08em;
 }
 
 .keys .wrong {
   color: var(--danger);
-  font-weight: 600;
   text-decoration: underline;
   text-decoration-thickness: 2px;
 }
@@ -127,7 +127,7 @@
   top: var(--space-3);
   padding: var(--space-2) var(--space-3);
   background: var(--surface);
-  border: 1px solid var(--border-strong);
+  border: var(--site-rule-width) solid var(--border-strong);
   border-radius: var(--radius-small);
   font-size: var(--text-sm);
   pointer-events: none;

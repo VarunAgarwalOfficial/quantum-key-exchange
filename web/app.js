@@ -92,14 +92,14 @@ function station(svg, x, name, colour) {
       y: Y - 22,
       width: 68,
       height: 44,
-      rx: 8,
+      rx: 2,
       fill: colours.bg,
       stroke: colour,
       "stroke-width": 1.5,
     }),
     element(
       "text",
-      { x, y: Y + 5, "text-anchor": "middle", fill: colours.ink, "font-size": 14 },
+      { x, y: Y + 6, "text-anchor": "middle", fill: colours.ink, "font-size": 17 },
       name,
     ),
   );
@@ -127,7 +127,7 @@ function photonMark(x, basis, bit, colour) {
 function drawLine(progress) {
   const svg = $("line");
   clear(svg);
-  const width = fit(svg, 260, 720, 132);
+  const width = fit(svg, 260, 720, 148);
   STATION.alice = 40;
   STATION.bob = width - 40;
   STATION.eve = width / 2;
@@ -154,7 +154,7 @@ function drawLine(progress) {
         y: Y - 30,
         "text-anchor": "middle",
         fill: colours.muted,
-        "font-size": 12,
+        "font-size": 17,
       },
       "optical fibre",
     ),
@@ -162,11 +162,13 @@ function drawLine(progress) {
 
   const index = progress === null ? revealed - 1 : revealed;
   const p = run.records[index] === undefined ? null : photon(run.records[index]);
-  const caption = (x, text) =>
+  // At 17px a caption is wider than a station, so the end captions line up with the station's
+  // outer edge instead of centring on it, and stay inside the drawing on a phone.
+  const caption = (x, text, anchor = "middle") =>
     svg.append(
       element(
         "text",
-        { x, y: Y + 50, "text-anchor": "middle", fill: colours.muted, "font-size": 12 },
+        { x, y: Y + 56, "text-anchor": anchor, fill: colours.muted, "font-size": 17 },
         text,
       ),
     );
@@ -177,22 +179,22 @@ function drawLine(progress) {
         "text",
         {
           x: STATION.eve,
-          y: Y + 66,
+          y: Y + 78,
           "text-anchor": "middle",
           fill: colours.muted,
-          "font-size": 12,
+          "font-size": 17,
         },
         `${run.records.length} photons wait at Alice.`,
       ),
     );
   }
   if (p) {
-    caption(STATION.alice, `sends ${p.aliceBit} in ${basisName(p.aliceBasis)}`);
+    caption(STATION.alice - 34, `sends ${p.aliceBit} in ${basisName(p.aliceBasis)}`, "start");
     if (eveOn) {
       caption(STATION.eve, p.tapped ? `measures in ${basisName(p.eveBasis)}` : "lets it pass");
     }
     if (progress === null || progress >= 1) {
-      caption(STATION.bob, `reads ${p.bobBit} in ${basisName(p.bobBasis)}`);
+      caption(STATION.bob + 34, `reads ${p.bobBit} in ${basisName(p.bobBasis)}`, "end");
     }
   }
   if (!p || progress === null) return;
@@ -206,7 +208,7 @@ function drawLine(progress) {
     photonMark(x, basis, bit, pastEve ? colours.change : colours.accent),
     element(
       "text",
-      { x, y: Y + 31, "text-anchor": "middle", fill: colours.ink, "font-size": 12 },
+      { x, y: Y + 34, "text-anchor": "middle", fill: colours.ink, "font-size": 17 },
       "photon",
     ),
   );
@@ -393,7 +395,7 @@ function drawCompare() {
 
 // Key rate chart.
 
-const CHART = { w: 720, h: 300, left: 48, right: 16, top: 30, bottom: 44 };
+const CHART = { w: 720, h: 312, left: 48, right: 16, top: 30, bottom: 56 };
 let rates = [];
 
 function entropy(p) {
@@ -436,7 +438,7 @@ function drawRates() {
   clear(svg);
   CHART.w = fit(svg, 300, 900, CHART.h);
   const text = (x, y, value, anchor = "middle", fill = colours.muted) =>
-    element("text", { x, y, "text-anchor": anchor, fill, "font-size": 12 }, value);
+    element("text", { x, y, "text-anchor": anchor, fill, "font-size": 17 }, value);
   for (const r of [0, 0.1, 0.2, 0.3, 0.4]) {
     svg.append(
       element("line", {
@@ -446,13 +448,13 @@ function drawRates() {
         y2: sy(r),
         stroke: colours.faint,
       }),
-      text(CHART.left - 8, sy(r) + 4, r.toFixed(1), "end"),
+      text(CHART.left - 8, sy(r) + 6, r.toFixed(1), "end"),
     );
   }
-  for (let n = 0; n <= 12; n += 2) svg.append(text(sx(n), CHART.h - CHART.bottom + 18, `${n}%`));
+  for (let n = 0; n <= 12; n += 2) svg.append(text(sx(n), CHART.h - CHART.bottom + 26, `${n}%`));
   svg.append(
-    text((CHART.left + CHART.w) / 2, CHART.h - 6, "line noise"),
-    text(4, 12, "secret bits per photon", "start"),
+    text((CHART.left + CHART.w) / 2, CHART.h - 8, "line noise"),
+    text(4, 16, "secret bits per photon", "start"),
   );
   // Current setting.
   if (state.noise <= 12) {
@@ -465,7 +467,10 @@ function drawRates() {
         stroke: colours.ink,
         "stroke-dasharray": "2 3",
       }),
-      text(sx(state.noise) + 4, CHART.top + 10, "noise now set", "start", colours.ink),
+      // Near the right edge the label goes on the left of the line, so it is not cut off.
+      sx(state.noise) + 120 > CHART.w - CHART.right
+        ? text(sx(state.noise) - 6, CHART.top + 18, "noise now set", "end", colours.ink)
+        : text(sx(state.noise) + 6, CHART.top + 18, "noise now set", "start", colours.ink),
     );
   }
   for (const s of series()) {
