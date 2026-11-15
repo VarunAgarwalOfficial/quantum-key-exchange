@@ -138,7 +138,7 @@ function drawLine(progress) {
       x2: STATION.bob - 34,
       y1: Y,
       y2: Y,
-      stroke: colours.faint,
+      stroke: colours.muted,
       "stroke-width": 2,
     }),
   );
@@ -197,9 +197,15 @@ function drawLine(progress) {
       caption(STATION.bob + 34, `reads ${p.bobBit} in ${basisName(p.bobBasis)}`, "end");
     }
   }
-  if (!p || progress === null) return;
+  if (!p) return;
 
-  const x = STATION.alice + 34 + progress * (STATION.bob - STATION.alice - 68);
+  // Between flights, and when motion is reduced, the last photon waits on the line beside Bob.
+  const x =
+    progress === null
+      ? STATION.bob - 80
+      : STATION.alice + 34 + progress * (STATION.bob - STATION.alice - 68);
+  // The name under the photon stays clear of the station boxes at either end.
+  const labelX = Math.min(Math.max(x, STATION.alice + 80), STATION.bob - 80);
   // After Eve has measured, the photon carries what her measurement left behind.
   const pastEve = eveOn && p.tapped && x >= STATION.eve;
   const basis = pastEve ? p.eveBasis : p.aliceBasis;
@@ -208,7 +214,7 @@ function drawLine(progress) {
     photonMark(x, basis, bit, pastEve ? colours.change : colours.accent),
     element(
       "text",
-      { x, y: Y + 34, "text-anchor": "middle", fill: colours.ink, "font-size": 17 },
+      { x: labelX, y: Y + 34, "text-anchor": "middle", fill: colours.ink, "font-size": 17 },
       "photon",
     ),
   );
