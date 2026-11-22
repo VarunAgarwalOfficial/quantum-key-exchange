@@ -241,4 +241,5 @@ eavesdropper.
 
 ## Credit
 
-Based on a university course project (CSE3501) by Varun Agarwal, 2022.
+Based on a VIT group course project for CSE3501 Information Security Analysis and Audit, 2021:
+[CSE3501-Quantum-Encryption](https://github.com/VarunAgarwalOfficial/CSE3501-Quantum-Encryption).
