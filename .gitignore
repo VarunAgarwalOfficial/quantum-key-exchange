@@ -1,2 +1,21 @@
 target/
 .env
+
+# Shared template
+.DS_Store
+.idea/
+.vscode/
+*.swp
+!.env.example
+node_modules/
+dist/
+.lake/
+__pycache__/
+*.pyc
+.venv/
+venv/
+.ipynb_checkpoints/
+*.aux
+*.fdb_latexmk
+*.fls
+*.synctex.gz

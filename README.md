@@ -133,7 +133,7 @@ read it, not change it); nothing here authenticates it. The command line uses
 the operating system's random numbers; the demo, the tables and the browser
 view use a seeded generator so runs can be repeated.
 
-## Run
+## Run it
 
 Needs a Rust toolchain, 1.88 or newer.
 
@@ -243,3 +243,11 @@ eavesdropper.
 
 Based on a VIT group course project for CSE3501 Information Security Analysis and Audit, 2021:
 [CSE3501-Quantum-Encryption](https://github.com/VarunAgarwalOfficial/CSE3501-Quantum-Encryption).
+
+## Status
+
+Working, as of 26 November 2026. See [STATUS.md](STATUS.md).
+
+## Licence
+
+MIT (see [LICENSE](LICENSE)).
