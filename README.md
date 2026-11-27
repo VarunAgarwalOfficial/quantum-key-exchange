@@ -1,4 +1,4 @@
-<p align="center"><img src="docs/banner.png" alt="Pixel art: a row of polarised photons passes between two sunflowers" width="100%"></p>
+<p align="center"><img src="docs/banner.png" alt="Pixel art: photons with polarisation arrows pass between two golden keys" width="100%"></p>
 
 # Quantum key exchange
 
