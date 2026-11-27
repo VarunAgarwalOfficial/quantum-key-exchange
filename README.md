@@ -1,4 +1,10 @@
-# quantum-key-exchange
+<p align="center"><img src="docs/banner.png" alt="Pixel art: a row of polarised photons passes between two sunflowers" width="100%"></p>
+
+# Quantum key exchange
+
+BB84 quantum key distribution simulated in Rust: sifting, Cascade error correction, privacy amplification.
+
+[MIT licence](LICENSE)
 
 Two programs, Alice and Bob, agree on a secret key over a TCP socket using the
 BB84 quantum key distribution protocol: they sift, estimate the error rate,
