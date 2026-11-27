@@ -202,7 +202,8 @@ variables onto it: page and ink in light and dark (following the system), the
 oxblood accent for links and focus only, Newsreader for text, the drawings
 and the keys, the site's sizes (17, 20, 22 and 28 px, and the title),
 spacing, measure, rules and focus ring. The token file asks for its fonts at
-`/fonts/`, so serve `web/` as the site root (as above) or from the website.
+`/fonts/`, so serve `web/` as the site root (as above) or from the website. The Pages workflow
+rewrites them to `fonts/` in the copy it publishes.
 The fonts and their licences (`Newsreader-OFL.txt`, `IBM-Plex-OFL.txt`,
 `GUST-FONT-LICENSE.txt`, `LPPL-1.3c.txt`, `NewCM-License.txt`) are in
 `web/fonts/`.
