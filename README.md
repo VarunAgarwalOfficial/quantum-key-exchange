@@ -13,6 +13,21 @@ what it does not](#what-the-simulation-shows-and-what-it-does-not).
 
 ![The browser view: the line, the photon strip, the sifted key and the key rate chart](docs/screenshot.png)
 
+## Results
+
+From `qkx rates`, 200,000 photons a row (tables [below](#how-it-works)):
+
+- **An eavesdropper on every photon shows up as 25.8% errors**, against the 25% the theory
+  predicts, and the exchange stops.
+- **The key runs out at about 10% line noise**, close to the 11% limit of the theory. On a clean
+  line it keeps 0.373 bits a photon, against an ideal 0.375.
+- Cascade error correction reveals 1.1 to 1.2 times the minimum number of bits the theory allows.
+- An eavesdropper on a quarter of the photons stays under the error limit, and the key that comes
+  out is shorter by at least what she could know.
+
+**Stack:** Rust with no dependencies, Alice and Bob over TCP sockets; the same library compiled to
+WebAssembly for a plain JavaScript page.
+
 ## The idea
 
 The original was a course project: Alice and Bob in two terminals, a stream of
