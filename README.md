@@ -4,7 +4,7 @@
 
 BB84 quantum key distribution simulated in Rust: sifting, Cascade error correction, privacy amplification.
 
-[MIT licence](LICENSE)
+[Live demo](https://varunagarwalofficial.github.io/quantum-key-exchange/) · [MIT licence](LICENSE)
 
 Two programs, Alice and Bob, agree on a secret key over a TCP socket using the
 BB84 quantum key distribution protocol: they sift, estimate the error rate,
