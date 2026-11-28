@@ -37,7 +37,7 @@ Options for demo and alice:
 
 QKX_HOST and QKX_PORT set where bob listens and alice connects (default
 127.0.0.1:5050); --host and --port override them. The photons are simulated:
-see the README for what that does and does not show.
+see docs/limits.md for what that does and does not show.
 
 Exit status: 0 when a key was agreed and the message delivered, 1 on an
 error, 2 for a wrong command line, 3 when the exchange stopped (too many

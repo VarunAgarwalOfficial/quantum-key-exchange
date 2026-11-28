@@ -70,7 +70,7 @@ impl Photon {
     }
 
     /// The photon's hidden state as one byte, for the simulated channel
-    /// between two programs. See the README: a real photon cannot be copied
+    /// between two programs. See docs/limits.md: a real photon cannot be copied
     /// like this, and the receiving program is trusted to only measure it.
     pub fn to_wire(self) -> u8 {
         u8::from(self.bit) | (u8::from(self.basis.as_bit()) << 1)
